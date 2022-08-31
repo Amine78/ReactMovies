@@ -5,6 +5,7 @@ import SearchBar from '../components/search-bar'
 import MovieDetail from '../components/movie-detail'
 import MovieVideo from '../components/movie-video'
 import MovieList from './movie-list'
+import Video from '../components/video';
 import VideoList from './video-list';
 import VideoDetail from '../components/video-detail'
 import { SSL_OP_ALL } from 'constants';
@@ -33,9 +34,14 @@ class App extends Component{
     }.bind(this));
     }
     applyVideoToCurrentMovie(){
-        axios.get(`${API_END_POINT_vid}movie/${this.state.currentMovie.id}?${API_KEY}&append_to_response=video&include_adult=false`).then(function(response){
-            console.log(response);
-            console.log('dede');  
+        axios.get(`${API_END_POINT}/tv/${this.state.currentMovie.id}/videos?${TV_POPULAR}&${API_KEY}&append_to_response=video&adult=false`).then(function(response){
+            ///console.log(response);
+            const youtubeKey = response.data.results[0].key;
+            let newCurrentMovieState = this.state.currentMovie
+            newCurrentMovieState.videoId = youtubeKey
+            this.setState({currentMovie : newCurrentMovieState})
+            console.log(newCurrentMovieState);
+            //console.log(youtubeKey);
         }.bind(this));
     }
     render(){
@@ -47,8 +53,15 @@ class App extends Component{
         return(
             <div>
                <SearchBar/>
+               <div className='row'>
+                <div className='col-md-8'>
+                <Video videoId={this.state.currentMovie.videoId}/>
+                <VideoDetail title={this.state.currentMovie.original_name} description={this.state.currentMovie.overview}/>
+                </div>
+                <div className='col-md-4'>
                 {RenderVideoList()}
-               <VideoDetail title={this.state.currentMovie.original_name} description={this.state.currentMovie.overview}/>
+                </div>
+               </div>
             </div>
         )
     }
